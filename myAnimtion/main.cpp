@@ -33,6 +33,7 @@ using namespace glm;
 #include "common/controls.hpp"
 #include "common/objloader.hpp"
 #include "common/vboindexer.hpp"
+#include "constants.h"
 
 
 
@@ -119,14 +120,14 @@ int main( void )
     //Si tienes FBX
     // Object3D* body = new Object3D("data/merc/source/merc.fbx",1.0);
     // body->ModelMatrix = glm::rotate(body->ModelMatrix,glm::radians(-90.0f),glm::vec3(1.0f,0.0f,0.0f));
-
-    std::string PATH = "/Users/davidchoqueluqueroman/Desktop/CURSOS-MASTER/GRAFICOS-ANIMATION/myAnimtion/myAnimtion/";
+    string path;
+    
     //SINO con OBJ
 //    Object3D* body = new Object3D(PATH+"data/batma.obj",true);
 //     Object3D* body = new Object3D(PATH+"data/models/gilbert/source/gilbert.fbx",true);
 //    Object3D* body = new Object3D(PATH+"data/models/big-guy/source/big_guy.fbx",true);
-//    Object3D* body = new Object3D(PATH+"data/models/big-guy-tri.dae",true);
-    Object3D* body = new Object3D(PATH+"data/models/Monster_1/Monster_1.dae",true);
+   Object3D* body = new Object3D(PATH+"data/models/big-guy.fbx",true);
+    // Object3D* body = new Object3D(PATH+"data/models/Monster_1/Monster_1.dae",true);
     // Object3D* body = new Object3D("data/batma.obj",false);
 //     Object3D* body = new Object3D(PATH+"data/models/ArmatureStraight.obj",true);
     
@@ -143,8 +144,8 @@ int main( void )
 
     //textuta
 
-    GLuint Texture= loadDDS("/Users/davidchoqueluqueroman/Desktop/CURSOS-MASTER/GRAFICOS-ANIMATION/myAnimtion/myAnimtion/data/cube/uvmap.DDS");
-    GLuint TextureID  = glGetUniformLocation(gizmo->programID, "/Users/davidchoqueluqueroman/Desktop/CURSOS-MASTER/GRAFICOS-ANIMATION/myAnimtion/myAnimtion/myTextureSampler");
+    GLuint Texture= loadDDS((PATH+"data/cube/uvmap.DDS").c_str());
+    GLuint TextureID  = glGetUniformLocation(gizmo->programID, (PATH+"myTextureSampler").c_str());
 
     // GLuint textureID;
     // glGenTextures(1,&textureID);

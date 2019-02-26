@@ -6,6 +6,7 @@ in vec3 Position_worldspace;
 in vec3 Normal_cameraspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 LightDirection_cameraspace;
+in vec4 We;
 
 
 // Output <- color
@@ -66,10 +67,10 @@ void main(){
 	vec3 IS = MaterialSpecularColor*LightColor*dot(R,E);
 //    color = vec3(1.0,1.0,1.0);
 	/*color = Codigo aqui*/
-     color = IA+ID+IS;
+    //  color = IA+ID+IS;
 	// color = MaterialDiffuseColor;
 
 	//  color = texture( myTextureSampler, UV ).rgb;
-	
+	color = vec3(We.xyz);
 
 }

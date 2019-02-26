@@ -113,14 +113,14 @@ public:
     GLuint ModelMatrixID;
     GLuint TextureID;
     GLuint TextureHandler;
-    GLuint VertexArrayID;
+    GLuint VertexArrayID; //VAO
     GLuint LightID;
     
     GLuint Texture;
     GLuint vertexbuffer;
     GLuint normalbuffer;
     GLuint uvbuffer;
-    GLuint EBO;
+    GLuint bonebuffer;
     
     glm::mat4 ModelMatrix;
     

@@ -99,6 +99,7 @@ void Object3D::loadMesh(){
      std::cout << "finish loading" << std::endl;*/
     
     glBindVertexArray(VertexArrayID);
+
     glGenBuffers(1, &vertexbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
@@ -110,6 +111,11 @@ void Object3D::loadMesh(){
     glGenBuffers(1, &normalbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
     glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+
+    glGenBuffers(1, &bonebuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, bonebuffer);
+    glBufferData(GL_ARRAY_BUFFER, bones.size() * sizeof(VertexBoneData), &bones[0], GL_STATIC_DRAW);
+
     
 }
 void Object3D::loadTmre(const std::string& fileName){
@@ -232,92 +238,6 @@ void Object3D::LoadBones(unsigned int MeshIndex, const aiMesh* pMesh, std::vecto
     }
 }
 
-
-
-bool Object3D::myLoadAssImp( const char * path, std::vector<unsigned int> & indices, std::vector<glm::vec3> & vertices,
-                            std::vector<glm::vec2> & uvs, std::vector<glm::vec3> & normals, std::vector<VertexBoneData>& bones)
-{
-    std::cout<<"loading with my Assimp..."<< path<<std::endl;
-    Assimp::Importer importer;
-    
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
-    // const aiScene* scene = importer.ReadFile(path, 0);
-    if( !scene) {
-        fprintf( stderr, importer.GetErrorString());
-        getchar();
-        return false;
-    }
-    int total_vertices = 0;
-    
-    
-    
-    for(unsigned int m = 0; m < scene->mNumMeshes; m++)
-    {
-        aiMesh* mesh = scene->mMeshes[m]; // In this simple example code we always use the 1rst mesh (in OBJ files there is often only one anyway)
-        total_vertices += mesh->mNumVertices;
-        // processNode( scene->mRootNode, scene, mesh);
-        
-    }
-    aiMesh* mesh = scene->mMeshes[0];
-//    aiMesh* mesh1 = scene->mMeshes[1];
-    
-    vertices.reserve(total_vertices);
-    uvs.reserve(total_vertices);
-    normals.reserve(total_vertices);
-    indices.reserve(3*mesh->mNumFaces);
-    std::cout<<"total_mallas: "<<scene->mNumMeshes<<std::endl;
-    std::cout<<"total_vertices: "<<total_vertices<<","<<mesh->mNumVertices<<std::endl;
-    std::cout<<"total_bones: "<<mesh->mNumBones<<std::endl;
-    std::cout<<"total_feces: "<<mesh->mNumFaces<<std::endl;
-    
-//    std::cout<<"total_bones(1): "<<mesh1->mNumBones<<std::endl;
-    
-    // // Fill vertices positions
-     for(unsigned int i=0; i<total_vertices; i++){
-         aiVector3D pos = mesh->mVertices[i];
-         vertices.push_back(glm::vec3(pos.x, pos.y, pos.z));
-         // cout<<pos.x<<","<<pos.y<<","<<pos.z<<endl;
-     }
-    
-     // // Fill vertices texture coordinates
-//     for(unsigned int i=0; i<total_vertices; i++){
-//         aiVector3D UVW = mesh->mTextureCoords[0][i]; // Assume only 1 set of UV coords; AssImp supports 8 UV sets.
-//         uvs.push_back(glm::vec2(UVW.x, UVW.y));
-//     }
-//
-//     // // Fill vertices normals
-//     for(unsigned int i=0; i<total_vertices; i++){
-//         aiVector3D n = mesh->mNormals[i];
-//         normals.push_back(glm::vec3(n.x, n.y, n.z));
-//     }
-//
-    
-     // // Fill face indices
-     for (unsigned int i=0; i<3*(mesh->mNumFaces); i++){
-         // Assume the model has only triangles.
-         indices.push_back(mesh->mFaces[i].mIndices[0]);
-         indices.push_back(mesh->mFaces[i].mIndices[1]);
-         indices.push_back(mesh->mFaces[i].mIndices[2]);
-     }
-    
-    //// Fill bones
-    // bones.reserve(mesh->mNumVertices);
-    // for(unsigned int i = 0; i < mesh->mNumBones; i++)
-    // {
-    //     std::cout<<mesh->mBones[i]->mNumWeights<<std::endl;
-    //     if(mesh->mBones[i]->mNumWeights > NUM_BONES_PER_VERTEX){
-    //         std::cout<<"========= muchos bones aqui: "<<mesh->mBones[i]->mNumWeights<<std::endl;
-    //     }
-    //     // for(unsigned int b=0;mesh->mBones[i];b++){
-    
-    //     // }
-    // }
-    
-    // The "scene" pointer will be deleted automatically by "importer"
-    return true;
-}
-
-
 void Object3D::draw(){
     
     //skel->ModelMatrix = glm::translate(ModelMatrix,glm::vec3(0,0,1));
@@ -393,7 +313,31 @@ void Object3D::draw(){
                           0,                                // stride
                           (void*)0                          // array buffer offset
                           );
+
+    // 4th attribute buffer : bone id
+    glEnableVertexAttribArray(3);
+    glBindBuffer(GL_ARRAY_BUFFER, bonebuffer);
+    glVertexAttribPointer(
+                          3,                                // attribute
+                          4,                                // size
+                          GL_INT,                         // type
+                          GL_FALSE,                         // normalized?
+                          sizeof(VertexBoneData),                                // stride
+                          (void*)0                          // array buffer offset
+                          );                          
     
+    // 4th attribute buffer : weight id
+    glEnableVertexAttribArray(4);
+    glBindBuffer(GL_ARRAY_BUFFER, bonebuffer);
+    glVertexAttribPointer(
+                          4,                                // attribute
+                          4,                                // size
+                          GL_FLOAT,                         // type
+                          GL_FALSE,                         // normalized?
+                          sizeof(VertexBoneData),                                // stride
+                          (void*)16                         // array buffer offset
+                          ); 
+
     
     // Draw the triangles !
     glDrawArrays(GL_TRIANGLES, 0, vertices.size() );
@@ -402,6 +346,8 @@ void Object3D::draw(){
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
+    glDisableVertexAttribArray(3);
+    glDisableVertexAttribArray(4);
     
 }
 
