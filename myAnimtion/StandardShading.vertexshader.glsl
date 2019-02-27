@@ -15,16 +15,25 @@ out vec3 EyeDirection_cameraspace;
 out vec3 LightDirection_cameraspace;
 out vec4 We;
 
+const int MAX_BONES = 100;
 // Datos uniformes al objeto
 uniform mat4 MVP;
 uniform mat4 V;
 uniform mat4 M;
 uniform vec3 LightPosition_worldspace;
+uniform mat4 gBones[MAX_BONES];
 
 void main(){
 
+	mat4 BoneTransform = gBones[BoneIDs[0]] * Weights[0];
+    BoneTransform += gBones[BoneIDs[1]] * Weights[1];
+    BoneTransform += gBones[BoneIDs[2]] * Weights[2];
+    BoneTransform += gBones[BoneIDs[3]] * Weights[3];
+
+
 	// gl_position es la position del vertice despues de la proyeccion
-	gl_Position =  MVP * vec4(vertexPosition_modelspace,1);
+	// gl_Position = BoneTransform *  MVP * vec4(vertexPosition_modelspace,1);
+	gl_Position = MVP * vec4(vertexPosition_modelspace,1);
 	
 	// La posicion del vertice solamente despues de la transformacion espacial (rotacion)
 	Position_worldspace = (M * vec4(vertexPosition_modelspace,1)).xyz;

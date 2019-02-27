@@ -33,9 +33,59 @@ using namespace glm;
 #include "common/controls.hpp"
 #include "common/objloader.hpp"
 #include "common/vboindexer.hpp"
-#include "constants.h"
+#include "sk_class/constants.h"
+#include <sys/time.h>
+// #include "sk_class/utils.h"
+
+#define INVALID_UNIFORM_LOCATION 0xffffffff
+long long GetCurrentTimeMillis();
 
 
+int m_frameCount = 0;
+int m_fps = 0;
+
+long long m_startTime = GetCurrentTimeMillis();
+long long m_frameTime = m_startTime;
+
+
+
+void CalcFPS()
+{
+    m_frameCount++;
+
+    long long time = GetCurrentTimeMillis();
+    
+    if (time - m_frameTime >= 1000) {
+        m_frameTime = time;
+        m_fps = m_frameCount;
+        m_frameCount = 0;
+    }
+}
+long long GetCurrentTimeMillis()
+{
+    timeval t;
+    gettimeofday(&t, NULL);
+
+    long long ret = t.tv_sec * 1000 + t.tv_usec / 1000;
+    return ret;
+}
+
+float GetRunningTime(long long m_startTime)
+{
+    float RunningTime = (float)((double)GetCurrentTimeMillis() - (double)m_startTime) / 1000.0f;
+    return RunningTime;
+}
+
+GLint GetUniformLocation(GLint program, const char* pUniformName)
+{
+    GLuint Location = glGetUniformLocation(program, pUniformName);
+
+    if (Location == INVALID_UNIFORM_LOCATION) {
+        fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", pUniformName);
+    }
+
+    return Location;
+}
 
 int main( void )
 {
@@ -120,45 +170,50 @@ int main( void )
     //Si tienes FBX
     // Object3D* body = new Object3D("data/merc/source/merc.fbx",1.0);
     // body->ModelMatrix = glm::rotate(body->ModelMatrix,glm::radians(-90.0f),glm::vec3(1.0f,0.0f,0.0f));
-    string path;
     
     //SINO con OBJ
 //    Object3D* body = new Object3D(PATH+"data/batma.obj",true);
 //     Object3D* body = new Object3D(PATH+"data/models/gilbert/source/gilbert.fbx",true);
 //    Object3D* body = new Object3D(PATH+"data/models/big-guy/source/big_guy.fbx",true);
-   Object3D* body = new Object3D(PATH+"data/models/big-guy.fbx",true);
+    // Object3D* body = new Object3D(PATH+"data/models/big-guy.fbx",true);
     // Object3D* body = new Object3D(PATH+"data/models/Monster_1/Monster_1.dae",true);
     // Object3D* body = new Object3D("data/batma.obj",false);
-//     Object3D* body = new Object3D(PATH+"data/models/ArmatureStraight.obj",true);
     
-
-
-    body->setShaders(PATH+"StandardShading.vertexshader.glsl", PATH+"phong.fragmentshader.glsl");
-    //Object3D* trex = new Object3D("data/trex/TrexByJoel3d.fbx");
+    Object3D* body = new Object3D(PATH+"data/models/boblampclean.md5mesh",true);
+//Object3D* trex = new Object3D("data/trex/TrexByJoel3d.fbx");
     //trex->setShaders("StandardShading.vertexshader", "phong.fragmentshader");
 
+    body->setShaders(PATH+"StandardShading.vertexshader.glsl", PATH+"phong.fragmentshader.glsl");
 
     Gizmo* gizmo = new Gizmo();
     gizmo->setShaders(PATH+"gizmo.vertexshader", PATH+"gizmo.fragmentshader");
 
+    // // //GEt uniform location: array
+    // GLuint m_boneLocation[MAX_BONES];
+    // int tam = sizeof(m_boneLocation)/sizeof(m_boneLocation[0]);
+
+    // for (unsigned int i = 0 ; i < tam ; i++) {
+    //     char Name[128];
+    //     memset(Name, 0, sizeof(Name));
+    //     snprintf(Name, sizeof(Name), "gBones[%d]", i);
+    //     m_boneLocation[i] = GetUniformLocation(body->programID,Name);
+    // }
+
 
     //textuta
-
     GLuint Texture= loadDDS((PATH+"data/cube/uvmap.DDS").c_str());
     GLuint TextureID  = glGetUniformLocation(gizmo->programID, (PATH+"myTextureSampler").c_str());
 
     // GLuint textureID;
     // glGenTextures(1,&textureID);
     // glBindTexture(GL_TEXTURE_2D,textureID);
-
     // glTextureImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_BGR,GL_UNSIGNED_BYTE,data);
 
-
+    vector<glm::mat4> Transforms;
 
     // Cull triangles which normal is not towards the camera
     //glEnable(GL_CULL_FACE);
     do{
-
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -173,6 +228,15 @@ int main( void )
         glUniform1i(TextureID, 0);
         ///////////////////////////////////////////////////
 
+        // // //animation
+        CalcFPS();
+        float t = GetRunningTime(m_startTime);
+
+        cout<<"time: "<<t<<endl;
+        
+        body->BoneTransform(t,Transforms);
+
+        //render
         gizmo->draw();
 
         //Dibujar en wireframe

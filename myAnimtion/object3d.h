@@ -74,6 +74,10 @@ private:
     map<std::string, unsigned int> m_BoneMapping; // maps a bone name to its index
     unsigned int m_NumBones;
     std::vector<BoneInfo> bonesInfo;
+
+
+    
+    
     // Access specifier
 public:
     Object3D();
@@ -95,7 +99,24 @@ public:
                   std::vector<VertexBoneData>& Bones,
                   std::vector<unsigned int>& Indices);
     void LoadBones(unsigned int MeshIndex, const aiMesh* pMesh, std::vector<VertexBoneData>& Bones);
-    
+    // void CalcFPS();
+    void BoneTransform(float TimeInSeconds, std::vector<glm::mat4>& Transforms);
+    void ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform);
+    const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const std::string NodeName);
+    unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
+    unsigned int FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
+    unsigned int FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
+    void CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+    void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+    void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+
+
+
+    const aiScene* pScene;
+    /* duration of the animation, can be changed if frames are not present in all interval */
+	double animDuration;
+    glm::mat4 m_GlobalInverseTransform;
+
     std::string vertShaderFilename;
     std::string fragShaderFilename;
     std::string meshFilename;
