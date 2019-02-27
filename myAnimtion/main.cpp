@@ -174,12 +174,12 @@ int main( void )
     //SINO con OBJ
 //    Object3D* body = new Object3D(PATH+"data/batma.obj",true);
 //     Object3D* body = new Object3D(PATH+"data/models/gilbert/source/gilbert.fbx",true);
-//    Object3D* body = new Object3D(PATH+"data/models/big-guy/source/big_guy.fbx",true);
+   Object3D* body = new Object3D(PATH+"data/models/big-guy/source/big_guy.fbx",true);
     // Object3D* body = new Object3D(PATH+"data/models/big-guy.fbx",true);
     // Object3D* body = new Object3D(PATH+"data/models/Monster_1/Monster_1.dae",true);
     // Object3D* body = new Object3D("data/batma.obj",false);
     
-    Object3D* body = new Object3D(PATH+"data/models/boblampclean.md5mesh",true);
+    // Object3D* body = new Object3D(PATH+"data/models/boblampclean.md5mesh",true);
 //Object3D* trex = new Object3D("data/trex/TrexByJoel3d.fbx");
     //trex->setShaders("StandardShading.vertexshader", "phong.fragmentshader");
 
