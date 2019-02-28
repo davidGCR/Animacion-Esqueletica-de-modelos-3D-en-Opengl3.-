@@ -22,6 +22,7 @@ GLFWwindow* window;
 // Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 using namespace glm;
 
 
@@ -174,12 +175,12 @@ int main( void )
     //SINO con OBJ
 //    Object3D* body = new Object3D(PATH+"data/batma.obj",true);
 //     Object3D* body = new Object3D(PATH+"data/models/gilbert/source/gilbert.fbx",true);
-   Object3D* body = new Object3D(PATH+"data/models/big-guy/source/big_guy.fbx",true);
-    // Object3D* body = new Object3D(PATH+"data/models/big-guy.fbx",true);
-    // Object3D* body = new Object3D(PATH+"data/models/Monster_1/Monster_1.dae",true);
+//   Object3D* body = new Object3D(PATH+"data/models/big-guy/source/big_guy.fbx",true);
+     Object3D* body = new Object3D(PATH+"data/models/model.dae",true);
+//     Object3D* body = new Object3D(PATH+"data/models/Monster_1/Monster_1.dae",true);
     // Object3D* body = new Object3D("data/batma.obj",false);
     
-    // Object3D* body = new Object3D(PATH+"data/models/boblampclean.md5mesh",true);
+//     Object3D* body = new Object3D(PATH+"data/models/boblampclean.md5anim",true);
 //Object3D* trex = new Object3D("data/trex/TrexByJoel3d.fbx");
     //trex->setShaders("StandardShading.vertexshader", "phong.fragmentshader");
 
@@ -189,15 +190,15 @@ int main( void )
     gizmo->setShaders(PATH+"gizmo.vertexshader", PATH+"gizmo.fragmentshader");
 
     // // //GEt uniform location: array
-    // GLuint m_boneLocation[MAX_BONES];
-    // int tam = sizeof(m_boneLocation)/sizeof(m_boneLocation[0]);
-
-    // for (unsigned int i = 0 ; i < tam ; i++) {
-    //     char Name[128];
-    //     memset(Name, 0, sizeof(Name));
-    //     snprintf(Name, sizeof(Name), "gBones[%d]", i);
-    //     m_boneLocation[i] = GetUniformLocation(body->programID,Name);
-    // }
+//     GLuint m_boneLocation[MAX_BONES];
+//     int tam = sizeof(m_boneLocation)/sizeof(m_boneLocation[0]);
+//
+//     for (unsigned int i = 0 ; i < tam ; i++) {
+//         char Name[128];
+//         memset(Name, 0, sizeof(Name));
+//         snprintf(Name, sizeof(Name), "gBones[%d]", i);
+//         m_boneLocation[i] = GetUniformLocation(body->programID,Name);
+//     }
 
 
     //textuta
@@ -209,7 +210,8 @@ int main( void )
     // glBindTexture(GL_TEXTURE_2D,textureID);
     // glTextureImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_BGR,GL_UNSIGNED_BYTE,data);
 
-    vector<glm::mat4> Transforms;
+    
+//    body->BoneTransform(0,Transforms);
 
     // Cull triangles which normal is not towards the camera
     //glEnable(GL_CULL_FACE);
@@ -232,9 +234,16 @@ int main( void )
         CalcFPS();
         float t = GetRunningTime(m_startTime);
 
-        cout<<"time: "<<t<<endl;
-        
+//        cout<<"time: "<<t<<endl;
+        vector<glm::mat4> Transforms;
         body->BoneTransform(t,Transforms);
+        
+        for (unsigned int i = 0; i < Transforms.size(); ++i)
+        {
+            const std::string name = "gBones[" + std::to_string(i) + "]";
+            GLuint boneTransform = glGetUniformLocation(body->programID, name.c_str());
+            glUniformMatrix4fv(boneTransform, 1, GL_FALSE, glm::value_ptr(Transforms[i]));
+        }
 
         //render
         gizmo->draw();

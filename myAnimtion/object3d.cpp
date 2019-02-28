@@ -39,7 +39,7 @@ Object3D::Object3D(std::string filename, bool flac,float scale){
     ModelMatrix = glm::mat4(1.0);
     lightPos=glm::vec4(4,4,1,0);
     flac_lib = flac;
-    
+    pScene = NULL;
     m_NumBones =0;
     meshFilename = filename;
     load_scale=scale;
@@ -121,7 +121,6 @@ void Object3D::loadMesh(){
     
 }
 void Object3D::loadTmre(const std::string& fileName){
-    Assimp::Importer m_Importer;
     // ASSIMP_LOAD_FLAGS (aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices)
     // const aiScene* pScene = m_Importer.ReadFile(fileName.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
     pScene = m_Importer.ReadFile(fileName.c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
@@ -374,32 +373,35 @@ void Object3D::BoneTransform(float TimeInSeconds,std::vector<glm::mat4>& Transfo
     // Matrix4f Identity;
     // Identity.InitIdentity();
     glm::mat4 Identity = glm::mat4();
-    if(pScene){
-        std::cout<<"Dbug scene: "<<pScene->mAnimations[10]->mNumChannels<<std::endl;
-        // unsigned int numPosKeys = pScene->mAnimations[0]->mChannels[0]->mNumPositionKeys;
-    }
-    else{
-        std::cout<<"No scene..."<<std::endl;
-    }
+//    if(pScene!=NULL){
+//        aiAnimation* a = pScene->mAnimations[0];
+////        double TicksPerSecond = (double)(pScene->mAnimations[0]->mTicksPerSecond);
+////        float TicksPerSecond = (float)(pScene->mAnimations[0]->mTicksPerSecond != 0 ? pScene->mAnimations[0]->mTicksPerSecond : 25.0f);
+//        std::cout<<"TicksPerSecond: "<<pScene->mNumAnimations<<std::endl;
+//        // unsigned int numPosKeys = pScene->mAnimations[0]->mChannels[0]->mNumPositionKeys;
+//    }
+//    else{
+//        std::cout<<"No scene..."<<std::endl;
+//    }
 
-    // unsigned int numPosKeys = pScene->mAnimations[0]->mChannels[0]->mNumPositionKeys;
-	// animDuration = pScene->mAnimations[0]->mChannels[0]->mPositionKeys[numPosKeys - 1].mTime;
+     unsigned int numPosKeys = pScene->mAnimations[0]->mChannels[0]->mNumPositionKeys;
+     animDuration = pScene->mAnimations[0]->mChannels[0]->mPositionKeys[numPosKeys - 1].mTime;
     
-    // float TicksPerSecond = (float)(pScene->mAnimations[0]->mTicksPerSecond != 0 ? pScene->mAnimations[0]->mTicksPerSecond : 25.0f);
-    // float TimeInTicks = TimeInSeconds * TicksPerSecond;
-    // float AnimationTime = fmod(TimeInTicks, animDuration);
+     float TicksPerSecond = (float)(pScene->mAnimations[0]->mTicksPerSecond != 0 ? pScene->mAnimations[0]->mTicksPerSecond : 25.0f);
+     float TimeInTicks = TimeInSeconds * TicksPerSecond;
+     float AnimationTime = fmod(TimeInTicks, animDuration);
 
-    // std::cout<<"animDuration: "<<animDuration<<std::endl;
-    // std::cout<<", TicksPerSecond: "<<TicksPer<<std::endl;
-    // std::cout<<", TimeInTicks: "<<TimeInTicks<<std::endl;
+//     std::cout<<"animDuration: "<<animDuration<<std::endl;
+//     std::cout<<", TicksPerSecond: "<<TicksPer<<std::endl;
+//     std::cout<<", TimeInTicks: "<<TimeInTicks<<std::endl;
 
-    // ReadNodeHeirarchy(AnimationTime, pScene->mRootNode, Identity);
+     ReadNodeHeirarchy(AnimationTime, pScene->mRootNode, Identity);
 
-    // Transforms.resize(m_NumBones);
+     Transforms.resize(m_NumBones);
 
-    // for (uint i = 0 ; i < m_NumBones ; i++) {
-    //     Transforms[i] = bonesInfo[i].FinalTransformation;
-    // }
+     for (uint i = 0 ; i < m_NumBones ; i++) {
+         Transforms[i] = bonesInfo[i].FinalTransformation;
+     }
 }
 
 void Object3D::ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform)

@@ -113,6 +113,8 @@ public:
 
 
     const aiScene* pScene;
+    Assimp::Importer m_Importer;
+    
     /* duration of the animation, can be changed if frames are not present in all interval */
 	double animDuration;
     glm::mat4 m_GlobalInverseTransform;
