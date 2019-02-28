@@ -372,7 +372,7 @@ void Object3D::BoneTransform(float TimeInSeconds,std::vector<glm::mat4>& Transfo
 {
     // Matrix4f Identity;
     // Identity.InitIdentity();
-    glm::mat4 Identity = glm::mat4();
+    glm::mat4 Identity = glm::mat4(1);
 //    if(pScene!=NULL){
 //        aiAnimation* a = pScene->mAnimations[0];
 ////        double TicksPerSecond = (double)(pScene->mAnimations[0]->mTicksPerSecond);
@@ -391,12 +391,18 @@ void Object3D::BoneTransform(float TimeInSeconds,std::vector<glm::mat4>& Transfo
      float TimeInTicks = TimeInSeconds * TicksPerSecond;
      float AnimationTime = fmod(TimeInTicks, animDuration);
 
-//     std::cout<<"animDuration: "<<animDuration<<std::endl;
-//     std::cout<<", TicksPerSecond: "<<TicksPer<<std::endl;
-//     std::cout<<", TimeInTicks: "<<TimeInTicks<<std::endl;
 
+    // float TicksPerSecond = (float)(pScene->mAnimations[0]->mTicksPerSecond != 0 ? pScene->mAnimations[0]->mTicksPerSecond : 25.0f);
+    // float TimeInTicks = TimeInSeconds * TicksPerSecond;
+    // float AnimationTime = fmod(TimeInTicks, (float)pScene->mAnimations[0]->mDuration);
+
+
+    std::cout<<"animDuration: "<<animDuration<<std::endl;
+    std::cout<<", TicksPerSecond: "<<TicksPerSecond<<std::endl;
+    std::cout<<", TimeInTicks: "<<TimeInTicks<<std::endl;
+    std::cout<<", AnimationTime: "<<AnimationTime<<std::endl;
      ReadNodeHeirarchy(AnimationTime, pScene->mRootNode, Identity);
-
+   
      Transforms.resize(m_NumBones);
 
      for (uint i = 0 ; i < m_NumBones ; i++) {
@@ -408,6 +414,8 @@ void Object3D::ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const
 {
 	std::string NodeName(pNode->mName.data); //aiNode
 
+    
+
 	const aiAnimation* pAnimation = pScene->mAnimations[0];
 
 	aiMatrix4x4 tp1 = pNode->mTransformation;
@@ -415,25 +423,32 @@ void Object3D::ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const
 	const aiNodeAnim* pNodeAnim = FindNodeAnim(pAnimation, NodeName);
 
 	if (pNodeAnim) {
+        std::cout<<"**** NodeName: "<<pNodeAnim->mNodeName.data<<std::endl;
 		// Interpolate scaling and generate scaling transformation matrix
 		aiVector3D Scaling;
 		CalcInterpolatedScaling(Scaling, AnimationTime, pNodeAnim);
-		glm::mat4 ScalingM;
-		
+		glm::mat4 ScalingM(1);
 		ScalingM = glm::scale(ScalingM, glm::vec3(Scaling.x, Scaling.y, Scaling.z));
+        // std::cout<<"========= ScalingM ========="<<std::endl;
+        // util_printGLMMat4(ScalingM);
+
 
 		// Interpolate rotation and generate rotation transformation matrix
 		aiQuaternion RotationQ;
 		CalcInterpolatedRotation(RotationQ, AnimationTime, pNodeAnim);
 		aiMatrix3x3 tp = RotationQ.GetMatrix();
 		glm::mat4 RotationM = aiMatrix3x3ToGlm(tp);
+        // std::cout<<"========= RotationM ========="<<std::endl;
+        // util_printGLMMat4(RotationM);
 
 		// Interpolate translation and generate translation transformation matrix
 		aiVector3D Translation;
 		
 		CalcInterpolatedPosition(Translation, AnimationTime, pNodeAnim);
-		glm::mat4 TranslationM;
+		glm::mat4 TranslationM(1);
 		TranslationM = glm::translate(TranslationM, glm::vec3(Translation.x, Translation.y, Translation.z));
+        // std::cout<<"========= TraslationM ========="<<std::endl;
+        // util_printGLMMat4(TranslationM);
 
 		// Combine the above transformations
 		NodeTransformation = TranslationM * RotationM *ScalingM;
@@ -458,6 +473,7 @@ const aiNodeAnim* Object3D::FindNodeAnim(const aiAnimation* pAnimation, const st
 		const aiNodeAnim* pNodeAnim = pAnimation->mChannels[i];
 
 		if (std::string(pNodeAnim->mNodeName.data) == NodeName) {
+            
 			return pNodeAnim;
 		}
 	}
@@ -471,6 +487,7 @@ unsigned int Object3D::FindPosition(float AnimationTime, const aiNodeAnim* pNode
 	{
 		
 		if (AnimationTime < (float)pNodeAnim->mPositionKeys[i + 1].mTime) {
+            // std::cout<<"-----> FindPosition: "<<i<<std::endl;
 			return i;
 		}
 	}
@@ -485,6 +502,7 @@ unsigned int Object3D::FindRotation(float AnimationTime, const aiNodeAnim* pNode
 
 	for (unsigned int i = 0; i < pNodeAnim->mNumRotationKeys - 1; i++) {
 		if (AnimationTime < (float)pNodeAnim->mRotationKeys[i + 1].mTime) {
+            // std::cout<<"-----> FindRotation: "<<i<<std::endl;
 			return i;
 		}
 	}
@@ -499,6 +517,7 @@ unsigned int Object3D::FindScaling(float AnimationTime, const aiNodeAnim* pNodeA
 
 	for (unsigned int i = 0; i < pNodeAnim->mNumScalingKeys - 1; i++) {
 		if (AnimationTime < (float)pNodeAnim->mScalingKeys[i + 1].mTime) {
+            // std::cout<<"-----> FindScaling: "<<i<<std::endl;
 			return i;
 		}
 	}
@@ -523,7 +542,11 @@ void Object3D::CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, co
     const aiVector3D& Start = pNodeAnim->mPositionKeys[PositionIndex].mValue;
     const aiVector3D& End = pNodeAnim->mPositionKeys[NextPositionIndex].mValue;
     aiVector3D Delta = End - Start;
+    
     Out = Start + Factor * Delta;
+    // std::cout<<"========= CalcInterpolatedPosition ========="<<Out.x<<","<<Out.y<<","<<Out.z<<std::endl;
+    std::cout<<"========= CalcInterpolatedPosition: Start ========="<<Start.x<<","<<Start.y<<","<<Start.z<<std::endl;
+    std::cout<<"========= CalcInterpolatedPosition: End ========="<<End.x<<","<<End.y<<","<<End.z<<std::endl;
 }
 
 

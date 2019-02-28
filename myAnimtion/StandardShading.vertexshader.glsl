@@ -25,17 +25,39 @@ uniform mat4 gBones[MAX_BONES];
 
 void main(){
 
-	mat4 BoneTransform = gBones[BoneIDs[0]] * Weights[0];
-    BoneTransform += gBones[BoneIDs[1]] * Weights[1];
-    BoneTransform += gBones[BoneIDs[2]] * Weights[2];
-    BoneTransform += gBones[BoneIDs[3]] * Weights[3];
+	// mat4 BoneTransform = gBones[BoneIDs[0]] * Weights[0];
+    // BoneTransform += gBones[BoneIDs[1]] * Weights[1];
+    // BoneTransform += gBones[BoneIDs[2]] * Weights[2];
+    // BoneTransform += gBones[BoneIDs[3]] * Weights[3];
 
-    vec4 PosL    = BoneTransform * vec4(vertexPosition_modelspace, 1.0);
-    gl_Position  = MVP * PosL;
-    TexCoord0    = vertexUV;
-    vec4 NormalL = BoneTransform * vec4(vertexNormal_modelspace, 0.0);
-    Normal0      = (gWorld * NormalL).xyz;
-    WorldPos0    = (gWorld * PosL).xyz;
+    // vec4 PosL    = BoneTransform * vec4(vertexPosition_modelspace, 1.0);//4*1
+    // gl_Position  = MVP * PosL;//4*1
+    
+    // vec4 worldNormal = gBones[BoneIDs[0]]* vec4(vertexNormal_modelspace, 0.0)*Weights[0];
+    // worldNormal += gBones[BoneIDs[1]]* vec4(vertexNormal_modelspace, 0.0)*Weights[1];
+    // worldNormal += gBones[BoneIDs[2]]* vec4(vertexNormal_modelspace, 0.0)*Weights[2];
+    // worldNormal += gBones[BoneIDs[3]]* vec4(vertexNormal_modelspace, 0.0)*Weights[3];
+
+    // Normal_cameraspace =  (transpose(inverse(V * M))*worldNormal).xyz;
+    
+    vec4 totalLocalPos = vec4(0.0);
+    vec4 totalNormal = vec4(0.0);
+    for(int i=0;i<4;i++){
+        mat4 boneTransformation = gBones[BoneIDs[i]];
+
+        vec4 posePosition = boneTransformation* vec4(vertexPosition_modelspace,1.0);
+        totalLocalPos += posePosition*Weights[i];
+
+        vec4 worldNormal = boneTransformation*vec4(vertexNormal_modelspace,0.0);
+        totalNormal += worldNormal*Weights[i];
+    }
+    
+    // gl_Position = MVP*totalLocalPos;
+    gl_Position = MVP* vec4(vertexPosition_modelspace,1);
+    Normal_cameraspace = (transpose(inverse(V * M)) *totalNormal).xyz;
+
+
+
 //
 //    // gl_position es la position del vertice despues de la proyeccion
 //     gl_Position = BoneTransform *  MVP * vec4(vertexPosition_modelspace,1);
@@ -54,11 +76,12 @@ void main(){
 //    LightDirection_cameraspace = LightPosition_cameraspace - vertexPosition_cameraspace;
 //
 //    // Normal despues de la transformacion
-//    Normal_cameraspace = ( transpose(inverse(V * M)) * vec4(vertexNormal_modelspace,0)).xyz;
+    // Normal_cameraspace = ( transpose(inverse(V * M)) * vec4(vertexNormal_modelspace,0)).xyz;
 //
 //    // UV no hacemos nada mas que interpolacion
 //    UV = vertexUV;
 //
-//    We = Weights;
+    UV    = vertexUV;
+    We = Weights;
 }
 

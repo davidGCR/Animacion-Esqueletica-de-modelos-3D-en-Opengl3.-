@@ -30,6 +30,16 @@ glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4 &from)
     return to;
 }
 
+// print out matrix by rows
+void util_printGLMMat4(glm::mat4  mat){
+  int i,j;
+  for (j=0; j<4; j++){
+    for (i=0; i<4; i++){
+    printf("%f ",mat[i][j]);
+  }
+  printf("\n");
+ }
+}
 
 
 
