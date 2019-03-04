@@ -100,6 +100,13 @@ GLint GetUniformLocation(GLint program, const char* pUniformName)
     return Location;
 }
 
+//void SetBoneTransform(uint Index, const Matrix4f& Transform)
+//{
+//    assert(Index < MAX_BONES);
+//    //Transform.Print();
+//    glUniformMatrix4fv(m_boneLocation[Index], 1, GL_TRUE, (const GLfloat*)Transform);
+//}
+
 int main( void )
 {
     // Initialise GLFW
@@ -188,12 +195,15 @@ int main( void )
 //    Object3D* body = new Object3D(PATH+"data/batma.obj",true);
 //     Object3D* body = new Object3D(PATH+"data/models/gilbert/source/gilbert.fbx",true);
 //   Object3D* body = new Object3D(PATH+"data/models/big-guy/source/big_guy.fbx",true);
-     Object3D* body = new Object3D(PATH+"data/models/model.dae",true);
-    // Object3D* body = new Object3D(PATH+"data/models/Monster_1/Monster_1.dae",true);
-    // Object3D* body = new Object3D("data/batma.obj",false);
+//    Object3D* body = new Object3D(PATH+"data/models/big-guy2.fbx",true);
+//     Object3D* body = new Object3D(PATH+"data/models/model2.dae",true);
+//     Object3D* body = new Object3D(PATH+"data/models/Monster_1/Monster_1.dae",true);
+     Object3D* body = new Object3D("data/models/ArmatureStraight.dae",true);
     
-//     Object3D* body = new Object3D(PATH+"data/models/boblampclean.md5anim",true);
-//Object3D* trex = new Object3D("data/trex/TrexByJoel3d.fbx");
+//     Object3D* body = new Object3D(PATH+"data/models/boblampclean.md5mesh",true);
+//    Object3D* body = new Object3D(PATH+"data/models/old-man-run-animation/source/Corriendo-Old.fbx",true);
+//    Object3D* body = new Object3D(PATH+"data/models/village-hero/sword_and_shield_idle.fbx",true);
+    //Object3D* trex = new Object3D("data/trex/TrexByJoel3d.fbx");
     //trex->setShaders("StandardShading.vertexshader", "phong.fragmentshader");
 
     body->setShaders(PATH+"StandardShading.vertexshader.glsl", PATH+"phong.fragmentshader.glsl");
@@ -246,28 +256,33 @@ int main( void )
         CalcFPS();
         float t = GetRunningTime(m_startTime);
 
-        cout<<"time: "<<t<<endl;
-        vector<glm::mat4> Transforms;
+        cout<<" /////////////////////////////////// time: "<<t<<endl;
+        vector<Matrix4f> Transforms;
         body->BoneTransform(t,Transforms);
 
-        // cout<<"IDENTITY"<<endl;
-        // glm::mat4 Identity(0);
-        // printGLMMat4(Identity);
         
-        for (unsigned int i = 0; i < Transforms.size(); ++i)
-        {
-            // std::cout << to_string(Transforms[i][0][0]) << std::endl;
-            // printGLMMat4(Transforms[i]);
-            const std::string name = "gBones[" + std::to_string(i) + "]";
+        for (uint i = 0 ; i < Transforms.size() ; i++) {
+//            SetBoneTransform(i, Transforms[i]);
+            cout<<"__________________________ Transform: "<<i<<endl;
+            Transforms[i].printMatrix4f();
+            const string name = "gBones[" + to_string(i) + "]";
             GLuint boneTransform = glGetUniformLocation(body->programID, name.c_str());
-            glUniformMatrix4fv(boneTransform, 1, GL_FALSE, glm::value_ptr(Transforms[i]));
+            glUniformMatrix4fv(/*m_boneLocation[i]*/boneTransform, 1, GL_TRUE, (const GLfloat*)Transforms[i]);
         }
+        
+//        for (unsigned int i = 0; i < Transforms.size(); ++i)
+//        {
+//            // std::cout << to_string(Transforms[i][0][0]) << std::endl;
+//            // printGLMMat4(Transforms[i]);
+//            const string name = "gBones[" + to_string(i) + "]";
+//            GLuint boneTransform = glGetUniformLocation(body->programID, name.c_str());
+//            glUniformMatrix4fv(boneTransform, 1, GL_TRUE, glm::value_ptr(Transforms[i]));
+//        }
 
         //render
         gizmo->draw();
 
         //Dibujar en wireframe
-        //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
         body->draw();
 
         // Swap buffers

@@ -6,18 +6,16 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 
-#include <iostream>
+
 
 #include "object3d.h"
-
-#include "skeleton.h"
+//#include "skeleton.h"
 
 #include "common/shader.hpp"
 #include "common/texture.hpp"
 #include "common/controls.hpp"
 #include "common/objloader.hpp"
 #include "common/vboindexer.hpp"
-#include "sk_class/utils.h"
 
 
 
@@ -91,7 +89,7 @@ void Object3D::loadMesh(){
     }
     else{
         //Si no consiguen a compilar con el SDK FBX
-        loadOBJ(meshFilename.c_str(), vertices, uvs, normals);
+//        loadOBJ(meshFilename.c_str(), vertices, uvs, normals);
     }
     
     //skel->printSkeleton();
@@ -117,6 +115,10 @@ void Object3D::loadMesh(){
     glGenBuffers(1, &bonebuffer);
     glBindBuffer(GL_ARRAY_BUFFER, bonebuffer);
     glBufferData(GL_ARRAY_BUFFER, bones.size() * sizeof(VertexBoneData), &bones[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &indexbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, indexbuffer);
+    glBufferData(GL_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
     
 }
@@ -128,11 +130,14 @@ void Object3D::loadTmre(const std::string& fileName){
     if (pScene)
 	{
 		/* Get transformation matrix for nodes(vertices relative to boes) */
-		aiMatrix4x4 tp1 = pScene->mRootNode->mTransformation;
-		m_GlobalInverseTransform = aiMatrix4x4ToGlm(tp1);
-		m_GlobalInverseTransform =  glm::inverse(m_GlobalInverseTransform);
+//        aiMatrix4x4 tp1 = pScene->mRootNode->mTransformation;
+//        m_GlobalInverseTransform = aiMatrix4x4ToGlm(tp1);
+//        m_GlobalInverseTransform =  glm::inverse(m_GlobalInverseTransform);
 		
 		// ret = InitFromScene(pScene, fileName);
+        m_GlobalInverseTransform = pScene->mRootNode->mTransformation;
+        m_GlobalInverseTransform.Inverse();
+        
         meshes.resize(pScene->mNumMeshes);
     
         unsigned int NumVertices = 0;
@@ -172,9 +177,9 @@ void Object3D::loadTmre(const std::string& fileName){
 }
 void Object3D::InitMesh(unsigned int MeshIndex,
                            const aiMesh* paiMesh,
-                           std::vector<glm::vec3>& Positions,
-                           std::vector<glm::vec3>& Normals,
-                           std::vector<glm::vec2>& TexCoords,
+                           std::vector<Vector3f>& Positions,
+                           std::vector<Vector3f>& Normals,
+                           std::vector<Vector2f>& TexCoords,
                            std::vector<VertexBoneData>& Bones,
                            std::vector<unsigned int>& Indices)
 {
@@ -191,15 +196,18 @@ void Object3D::InitMesh(unsigned int MeshIndex,
         const aiVector3D* pTexCoord = paiMesh->HasTextureCoords(0) ? &(paiMesh->mTextureCoords[0][i]) : &Zero3D;
         
         /* store pos normal texCoord */
-        // Positions.push_back(glm::vec3(pPos->x, pPos->y, pPos->z));
-        Positions.push_back(glm::vec3(pPos->x, (pPos->z), -(pPos->y)));
+         Positions.push_back(Vector3f(pPos->x, pPos->y, pPos->z));
+//        Positions.push_back(Vector3f(pPos->x, pPos->z, -(pPos->y)));
+//        Positions.push_back(glm::vec3(pPos->x, (pPos->z), -(pPos->y)));
         
         if (paiMesh->HasNormals())
         {
             const aiVector3D* pNormal = &(paiMesh->mNormals[i]);
-            Normals.push_back(glm::vec3(pNormal->x, pNormal->y, pNormal->z));
+            Normals.push_back(Vector3f(pNormal->x, pNormal->y, pNormal->z));
+//            Normals.push_back(glm::vec3(pNormal->x, pNormal->y, pNormal->z));
         }
-        TexCoords.push_back(glm::vec2(pTexCoord->x, pTexCoord->y));
+//        TexCoords.push_back(glm::vec2(pTexCoord->x, pTexCoord->y));
+        TexCoords.push_back(Vector2f(pTexCoord->x, pTexCoord->y));
     }
     
     /* Load bones */
@@ -225,7 +233,7 @@ void Object3D::LoadBones(unsigned int MeshIndex, const aiMesh* pMesh, std::vecto
     for (unsigned int i = 0; i < pMesh->mNumBones; ++i)
     {
         unsigned int BoneIndex = 0;
-        std::string BoneName(pMesh->mBones[i]->mName.data);
+        string BoneName(pMesh->mBones[i]->mName.data);
         
         if (m_BoneMapping.find(BoneName) == m_BoneMapping.end())
         {
@@ -235,8 +243,9 @@ void Object3D::LoadBones(unsigned int MeshIndex, const aiMesh* pMesh, std::vecto
             BoneInfo bi;
             bonesInfo.push_back(bi);
             
-            aiMatrix4x4 tp1 = pMesh->mBones[i]->mOffsetMatrix;
-            bonesInfo[BoneIndex].BoneOffset = aiMatrix4x4ToGlm(tp1);
+//            aiMatrix4x4 tp1 = pMesh->mBones[i]->mOffsetMatrix;
+//            bonesInfo[BoneIndex].BoneOffset = aiMatrix4x4ToGlm(tp1);
+            bonesInfo[BoneIndex].BoneOffset = pMesh->mBones[i]->mOffsetMatrix;
             m_BoneMapping[BoneName] = BoneIndex;
         }
         else
@@ -352,12 +361,21 @@ void Object3D::draw(){
                           GL_FALSE,                         // normalized?
                           sizeof(VertexBoneData),                                // stride
                           (void*)16                         // array buffer offset
-                          ); 
+                          );
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,indexbuffer);
+    
 
     
     // Draw the triangles !
-    glDrawArrays(GL_TRIANGLES, 0, vertices.size() );
-    // glDrawArrays(GL_LINE_LOOP, 0, vertices.size() );
+//    glDrawArrays(GL_TRIANGLES, 0, vertices.size() );
+    for (uint i = 0 ; i < meshes.size() ; i++) {
+        glDrawElementsBaseVertex(GL_TRIANGLES,
+                                 meshes[i].NumIndices,
+                                 GL_UNSIGNED_INT,
+                                 (void*)(sizeof(uint) * meshes[i].BaseIndex),
+                                 meshes[i].BaseVertex);
+    }
     
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
@@ -368,93 +386,106 @@ void Object3D::draw(){
 }
 
 
-void Object3D::BoneTransform(float TimeInSeconds,std::vector<glm::mat4>& Transforms)
+void Object3D::BoneTransform(float TimeInSeconds,std::vector<Matrix4f>& Transforms)
 {
-    // Matrix4f Identity;
-    // Identity.InitIdentity();
-    glm::mat4 Identity = glm::mat4(1);
-//    if(pScene!=NULL){
-//        aiAnimation* a = pScene->mAnimations[0];
-////        double TicksPerSecond = (double)(pScene->mAnimations[0]->mTicksPerSecond);
-////        float TicksPerSecond = (float)(pScene->mAnimations[0]->mTicksPerSecond != 0 ? pScene->mAnimations[0]->mTicksPerSecond : 25.0f);
-//        std::cout<<"TicksPerSecond: "<<pScene->mNumAnimations<<std::endl;
-//        // unsigned int numPosKeys = pScene->mAnimations[0]->mChannels[0]->mNumPositionKeys;
-//    }
-//    else{
-//        std::cout<<"No scene..."<<std::endl;
-//    }
-
-     unsigned int numPosKeys = pScene->mAnimations[0]->mChannels[0]->mNumPositionKeys;
-     animDuration = pScene->mAnimations[0]->mChannels[0]->mPositionKeys[numPosKeys - 1].mTime;
+    if (pScene->mNumAnimations == 0) {
+        cout<<"No animation in model loaded...."<<endl;
+        return;
+    }
+    cout<<"Exist animation-numChanels: "<<pScene->mAnimations[0]->mNumChannels<<endl;
     
-     float TicksPerSecond = (float)(pScene->mAnimations[0]->mTicksPerSecond != 0 ? pScene->mAnimations[0]->mTicksPerSecond : 25.0f);
-     float TimeInTicks = TimeInSeconds * TicksPerSecond;
-     float AnimationTime = fmod(TimeInTicks, animDuration);
+     Matrix4f Identity;
+     Identity.InitIdentity();
+//    glm::mat4 Identity = glm::mat4(1);
+
+    unsigned int numPosKeys = pScene->mAnimations[0]->mChannels[0]->mNumPositionKeys;
+    animDuration = pScene->mAnimations[0]->mChannels[0]->mPositionKeys[numPosKeys - 1].mTime;
+
+    float TicksPerSecond = (float)(pScene->mAnimations[0]->mTicksPerSecond != 0 ? pScene->mAnimations[0]->mTicksPerSecond : 25.0f);
+    float TimeInTicks = TimeInSeconds * TicksPerSecond;
+    float AnimationTime = fmod(TimeInTicks, animDuration);
 
 
-    // float TicksPerSecond = (float)(pScene->mAnimations[0]->mTicksPerSecond != 0 ? pScene->mAnimations[0]->mTicksPerSecond : 25.0f);
-    // float TimeInTicks = TimeInSeconds * TicksPerSecond;
-    // float AnimationTime = fmod(TimeInTicks, (float)pScene->mAnimations[0]->mDuration);
+//     float TicksPerSecond = (float)(pScene->mAnimations[0]->mTicksPerSecond != 0 ? pScene->mAnimations[0]->mTicksPerSecond : 25.0f);
+//     float TimeInTicks = TimeInSeconds * TicksPerSecond;
+//     float AnimationTime = fmod(TimeInTicks, (float)pScene->mAnimations[0]->mDuration);
 
 
-    std::cout<<"animDuration: "<<animDuration<<std::endl;
-    std::cout<<", TicksPerSecond: "<<TicksPerSecond<<std::endl;
-    std::cout<<", TimeInTicks: "<<TimeInTicks<<std::endl;
-    std::cout<<", AnimationTime: "<<AnimationTime<<std::endl;
-     ReadNodeHeirarchy(AnimationTime, pScene->mRootNode, Identity);
-   
-     Transforms.resize(m_NumBones);
+//    std::cout<<"animDuration: "<<animDuration<<std::endl;
+//    std::cout<<", TicksPerSecond: "<<TicksPerSecond<<std::endl;
+//    std::cout<<", TimeInTicks: "<<TimeInTicks<<std::endl;
+//    std::cout<<", AnimationTime: "<<AnimationTime<<std::endl;
 
-     for (uint i = 0 ; i < m_NumBones ; i++) {
-         Transforms[i] = bonesInfo[i].FinalTransformation;
-     }
+    ReadNodeHeirarchy(AnimationTime, pScene->mRootNode, Identity);
+
+    Transforms.resize(m_NumBones);
+
+    for (uint i = 0 ; i < m_NumBones ; i++) {
+        Transforms[i] = bonesInfo[i].FinalTransformation;
+    }
 }
 
-void Object3D::ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform)
+void Object3D::ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const Matrix4f& ParentTransform)
 {
-	std::string NodeName(pNode->mName.data); //aiNode
-
-    
+	string NodeName(pNode->mName.data); //aiNode
 
 	const aiAnimation* pAnimation = pScene->mAnimations[0];
 
-	aiMatrix4x4 tp1 = pNode->mTransformation;
-	glm::mat4 NodeTransformation = aiMatrix4x4ToGlm(tp1);
+//    aiMatrix4x4 tp1 = pNode->mTransformation;
+    Matrix4f NodeTransformation(pNode->mTransformation);
+//    glm::mat4 NodeTransformation = aiMatrix4x4ToGlm(tp1);
 	const aiNodeAnim* pNodeAnim = FindNodeAnim(pAnimation, NodeName);
 
 	if (pNodeAnim) {
-        std::cout<<"**** NodeName: "<<pNodeAnim->mNodeName.data<<std::endl;
+        cout<<"*********+ NodeName: "<<pNodeAnim->mNodeName.data<<std::endl;
 		// Interpolate scaling and generate scaling transformation matrix
 		aiVector3D Scaling;
 		CalcInterpolatedScaling(Scaling, AnimationTime, pNodeAnim);
-		glm::mat4 ScalingM(1);
-		ScalingM = glm::scale(ScalingM, glm::vec3(Scaling.x, Scaling.y, Scaling.z));
-        // std::cout<<"========= ScalingM ========="<<std::endl;
-        // util_printGLMMat4(ScalingM);
+        
+//        cout<<"Scaling: "<<Scaling.x<<","<<Scaling.y<<","<<Scaling.z<<endl;
+        
+//        glm::mat4 ScalingM;
+        Matrix4f ScalingM;
+        ScalingM.InitScaleTransform(Scaling.x, Scaling.y, Scaling.z);
+        
+//        ScalingM = glm::scale(ScalingM, glm::vec3(Scaling.x, Scaling.y, Scaling.z));
+//        cout<<"========= ScalingM ========="<<std::endl;
+//        ScalingM.printMatrix4f();
+//        util_printGLMMat4(ScalingM);
 
 
-		// Interpolate rotation and generate rotation transformation matrix
-		aiQuaternion RotationQ;
-		CalcInterpolatedRotation(RotationQ, AnimationTime, pNodeAnim);
-		aiMatrix3x3 tp = RotationQ.GetMatrix();
-		glm::mat4 RotationM = aiMatrix3x3ToGlm(tp);
-        // std::cout<<"========= RotationM ========="<<std::endl;
-        // util_printGLMMat4(RotationM);
+        // Interpolate rotation and generate rotation transformation matrix
+        aiQuaternion RotationQ;
+        CalcInterpolatedRotation(RotationQ, AnimationTime, pNodeAnim);
+        Matrix4f RotationM = Matrix4f(RotationQ.GetMatrix());
+//        cout<<"========= RotationM ========="<<std::endl;
+//        RotationM.printMatrix4f();
+//        
+//        aiMatrix3x3 tp = RotationQ.GetMatrix();
+//        glm::mat4 RotationM = aiMatrix3x3ToGlm(tp);
+//        cout<<"========= RotationM ========="<<std::endl;
+//        util_printGLMMat4(RotationM);
 
-		// Interpolate translation and generate translation transformation matrix
-		aiVector3D Translation;
-		
-		CalcInterpolatedPosition(Translation, AnimationTime, pNodeAnim);
-		glm::mat4 TranslationM(1);
-		TranslationM = glm::translate(TranslationM, glm::vec3(Translation.x, Translation.y, Translation.z));
-        // std::cout<<"========= TraslationM ========="<<std::endl;
-        // util_printGLMMat4(TranslationM);
+        // Interpolate translation and generate translation transformation matrix
+        aiVector3D Translation;
+        CalcInterpolatedPosition(Translation, AnimationTime, pNodeAnim);
+        Matrix4f TranslationM;
+        TranslationM.InitTranslationTransform(Translation.x, Translation.y, Translation.z);
+//        cout<<"========= TranslationM ========="<<std::endl;
+//        TranslationM.printMatrix4f();
+//        glm::mat4 TranslationM;
+//        TranslationM = glm::translate(TranslationM, glm::vec3(Translation.x, Translation.y, Translation.z));
+//         std::cout<<"========= TraslationM ========="<<std::endl;
+//         util_printGLMMat4(TranslationM);
 
-		// Combine the above transformations
-		NodeTransformation = TranslationM * RotationM *ScalingM;
+        // Combine the above transformations
+        NodeTransformation = TranslationM * RotationM * ScalingM;
+//        std::cout<<"========= NodeTransformation ========="<<std::endl;
+//        NodeTransformation.printMatrix4f();
 	}
 
-	glm::mat4 GlobalTransformation = ParentTransform * NodeTransformation;
+//    glm::mat4 GlobalTransformation = ParentTransform * NodeTransformation;
+    Matrix4f GlobalTransformation = ParentTransform * NodeTransformation;
 
 	if (m_BoneMapping.find(NodeName) != m_BoneMapping.end()) {
 		unsigned int BoneIndex = m_BoneMapping[NodeName];
@@ -545,8 +576,8 @@ void Object3D::CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, co
     
     Out = Start + Factor * Delta;
     // std::cout<<"========= CalcInterpolatedPosition ========="<<Out.x<<","<<Out.y<<","<<Out.z<<std::endl;
-    std::cout<<"========= CalcInterpolatedPosition: Start ========="<<Start.x<<","<<Start.y<<","<<Start.z<<std::endl;
-    std::cout<<"========= CalcInterpolatedPosition: End ========="<<End.x<<","<<End.y<<","<<End.z<<std::endl;
+//    std::cout<<"========= CalcInterpolatedPosition: Start ========="<<Start.x<<","<<Start.y<<","<<Start.z<<std::endl;
+//    std::cout<<"========= CalcInterpolatedPosition: End ========="<<End.x<<","<<End.y<<","<<End.z<<std::endl;
 }
 
 
@@ -588,5 +619,10 @@ void Object3D::CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, con
     const aiVector3D& End   = pNodeAnim->mScalingKeys[NextScalingIndex].mValue;
     aiVector3D Delta = End - Start;
     Out = Start + Factor * Delta;
+    
+//    cout<<"Start: "<<(double)Start.x<<","<<(double)Start.y<<","<<(double)Start.z<<endl;
+//    cout<<"End: "<<(double)End.x<<","<<(double)End.y<<","<<(double)End.z<<endl;
+//    cout<<"Delta: "<<Delta.x<<","<<Delta.y<<","<<Delta.z<<endl;
+//    cout<<"Out: "<<Out.x<<","<<Out.y<<","<<Out.z<<endl;
 }
 

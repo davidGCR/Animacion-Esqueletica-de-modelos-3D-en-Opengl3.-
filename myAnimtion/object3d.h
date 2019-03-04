@@ -14,6 +14,9 @@
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
 #include "common/Mesh.h"
+#include "sk_class/my_math.h"
+
+using namespace std;
 
 const unsigned int NUM_BONES_PER_VERTEX = 4;
 //class Skeleton;
@@ -51,18 +54,28 @@ struct VertexBoneData
     }
 };
 
+//struct BoneInfo
+//{
+//    glm::mat4 BoneOffset;
+//    glm::mat4 FinalTransformation;
+//
+//    BoneInfo()
+//    {
+//        BoneOffset = glm::mat4(0.0f);
+//        FinalTransformation = glm::mat4(0.0f);
+//    }
+//};
 struct BoneInfo
 {
-    glm::mat4 BoneOffset;
-    glm::mat4 FinalTransformation;
+    Matrix4f BoneOffset;
+    Matrix4f FinalTransformation;
     
     BoneInfo()
     {
-        BoneOffset = glm::mat4(0.0f);
-        FinalTransformation = glm::mat4(0.0f);
+        BoneOffset.SetZero();
+        FinalTransformation.SetZero();
     }
 };
-
 
 
 
@@ -93,15 +106,15 @@ public:
     void loadTmre(const std::string& fileName);
     void InitMesh(unsigned int MeshIndex,
                   const aiMesh* paiMesh,
-                  std::vector<glm::vec3>& Positions,
-                  std::vector<glm::vec3>& Normals,
-                  std::vector<glm::vec2>& TexCoords,
+                  std::vector<Vector3f>& Positions,
+                  std::vector<Vector3f>& Normals,
+                  std::vector<Vector2f>& TexCoords,
                   std::vector<VertexBoneData>& Bones,
                   std::vector<unsigned int>& Indices);
     void LoadBones(unsigned int MeshIndex, const aiMesh* pMesh, std::vector<VertexBoneData>& Bones);
     // void CalcFPS();
-    void BoneTransform(float TimeInSeconds, std::vector<glm::mat4>& Transforms);
-    void ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform);
+    void BoneTransform(float TimeInSeconds, std::vector<Matrix4f>& Transforms);
+    void ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const Matrix4f& ParentTransform);
     const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const std::string NodeName);
     unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
     unsigned int FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
@@ -117,16 +130,16 @@ public:
     
     /* duration of the animation, can be changed if frames are not present in all interval */
 	double animDuration;
-    glm::mat4 m_GlobalInverseTransform;
+    Matrix4f m_GlobalInverseTransform;
 
     std::string vertShaderFilename;
     std::string fragShaderFilename;
     std::string meshFilename;
     std::string textureFilename;
     
-    std::vector<glm::vec3> vertices;
-    std::vector<glm::vec2> uvs;
-    std::vector<glm::vec3> normals;
+    std::vector<Vector3f> vertices;
+    std::vector<Vector2f> uvs;
+    std::vector<Vector3f> normals;
     std::vector<unsigned int> indices;
     std::vector<VertexBoneData> bones;
     
@@ -144,6 +157,7 @@ public:
     GLuint normalbuffer;
     GLuint uvbuffer;
     GLuint bonebuffer;
+    GLuint indexbuffer;
     
     glm::mat4 ModelMatrix;
     
