@@ -370,7 +370,7 @@ void Object3D::draw(){
     // Draw the triangles !
 //    glDrawArrays(GL_TRIANGLES, 0, vertices.size() );
     for (uint i = 0 ; i < meshes.size() ; i++) {
-        glDrawElementsBaseVertex(GL_TRIANGLES,
+        glDrawElementsBaseVertex(GL_LINE_LOOP,
                                  meshes[i].NumIndices,
                                  GL_UNSIGNED_INT,
                                  (void*)(sizeof(uint) * meshes[i].BaseIndex),

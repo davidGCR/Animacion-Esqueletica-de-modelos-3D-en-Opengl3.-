@@ -37,6 +37,7 @@ using namespace glm;
 #include "common/vboindexer.hpp"
 #include "sk_class/constants.h"
 #include <sys/time.h>
+#include "OCoR.h"
 // #include "sk_class/utils.h"
 
 #define INVALID_UNIFORM_LOCATION 0xffffffff
@@ -201,7 +202,8 @@ int main( void )
 //    Object3D* body = new Object3D( PATH+"data/models/simple_animated.dae",true);
 
     //    Object3D* body = new Object3D( PATH+"data/models/armature.dae",true);
-    Object3D* body = new Object3D( PATH+"data/models/cylinder.dae",true);
+    //Object3D* body = new Object3D( PATH+"data/models/cylinder.dae",true);
+    Object3D* body = new Object3D( PATH+"data/models/rectangulo_animated.dae",true);
     body->ModelMatrix = glm::rotate(body->ModelMatrix,glm::radians(-90.0f),glm::vec3(1.0f,0.0f,0.0f));
     
 //     Object3D* body = new Object3D(PATH+"data/models/boblampclean.md5mesh",true);
