@@ -151,7 +151,7 @@ int main( void )
     
 //    GLFWwindow* window = glfwCreateWindow(640,480,"hola triangulo",NULL,NULL);
     if( window == NULL ){
-        fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
+        fprintf( stderr, "Failed to open GLFW window.\n" );
         getchar();
         glfwTerminate();
         return -1;
@@ -198,7 +198,11 @@ int main( void )
 //    Object3D* body = new Object3D(PATH+"data/models/big-guy2.fbx",true);
 //     Object3D* body = new Object3D(PATH+"data/models/model2.dae",true);
 //     Object3D* body = new Object3D(PATH+"data/models/Monster_1/Monster_1.dae",true);
-     Object3D* body = new Object3D("data/models/ArmatureStraight.dae",true);
+//    Object3D* body = new Object3D( PATH+"data/models/simple_animated.dae",true);
+
+    //    Object3D* body = new Object3D( PATH+"data/models/armature.dae",true);
+    Object3D* body = new Object3D( PATH+"data/models/cylinder.dae",true);
+    body->ModelMatrix = glm::rotate(body->ModelMatrix,glm::radians(-90.0f),glm::vec3(1.0f,0.0f,0.0f));
     
 //     Object3D* body = new Object3D(PATH+"data/models/boblampclean.md5mesh",true);
 //    Object3D* body = new Object3D(PATH+"data/models/old-man-run-animation/source/Corriendo-Old.fbx",true);
@@ -238,6 +242,7 @@ int main( void )
     // Cull triangles which normal is not towards the camera
     //glEnable(GL_CULL_FACE);
     do{
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
