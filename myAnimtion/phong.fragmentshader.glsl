@@ -66,7 +66,7 @@ void main(){
 	vec3 R = reflect(-l, E);
 	// vec3 IS = MaterialSpecularColor*LightColor*max(0.0,dot(R,E));
 	vec3 IS = MaterialSpecularColor*LightColor*dot(R,E);
-    //color = vec3(1.0,1.0,1.0);
+//    color = vec3(1.0,0.6,0.5);
 	/*color = Codigo aqui*/
 //      color = IA+ID+IS;
 	// color = MaterialDiffuseColor;

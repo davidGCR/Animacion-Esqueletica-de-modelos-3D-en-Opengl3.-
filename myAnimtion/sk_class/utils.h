@@ -2,11 +2,18 @@
 // #define UTILSS_H
 
 #include <sys/time.h>
-#include <iostream>
 #include <glm/glm.hpp>
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include "constants.h"
+#include "my_math.h"
+
+using namespace std;
 
 glm::mat3 aiMatrix3x3ToGlm(const aiMatrix3x3 &from)
 {
@@ -41,6 +48,28 @@ void util_printGLMMat4(glm::mat4  mat){
  }
 }
 
+
+//void save_refinements_parameters_add_row(ofstream& myfile,int iter, CvMat* K,CvMat* Rt, double rmss){
+//    //    for(int i = 0; i < P->rows; i++)
+//    //    {
+//    //        myfile <<cvmGet(P,i,0)<<",";
+//    //    }
+//    myfile <<iter<<","<<cvmGet(K,0,0)<<","<<cvmGet(K,1,1)<<","<<cvmGet(K,0,2)<<","<<cvmGet(K,1,2)<<","<<cvmGet(K,0,1)<<","
+//    <<cvmGet(Rt,0,0)<<","<<cvmGet(Rt,0,1)<<","<<cvmGet(Rt,0,2)<<","
+//    <<cvmGet(Rt,1,0)<<","<<cvmGet(Rt,1,1)<<","<<cvmGet(Rt,1,2)<<","
+//    <<cvmGet(Rt,2,0)<<","<<cvmGet(Rt,2,1)<<","<<cvmGet(Rt,2,2)<<","
+//    <<cvmGet(Rt,0,3)<<","<<cvmGet(Rt,1,3)<<","<<cvmGet(Rt,2,3)<<","<<rmss<<"\n";
+//}
+
+void save_CoR(string nModel, vector<Vector3f> cors){
+    cout<<"Saving..."<<endl;
+    ofstream myfile;
+    myfile.open (PATH_DATA+nModel+"_cors.csv");
+    for (int i=0; i<cors.size(); i++) {
+        myfile<< cors[i].x <<","<< cors[i].y <<"," <<cors[i].z<<"\n";
+    }
+    myfile.close();
+}
 
 
 // #endif

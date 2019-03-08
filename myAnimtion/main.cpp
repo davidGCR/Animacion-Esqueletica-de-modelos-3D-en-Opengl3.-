@@ -205,11 +205,15 @@ int main( void )
 //    Object3D* body = new Object3D( PATH+"data/models/simple_animated.dae",true);
 
 //        Object3D* body = new Object3D( PATH+"data/models/ArmatureStraight.dae",true);
-//    Object3D* body = new Object3D( PATH+"data/models/cylinder.dae",true);
+    Object3D* body = new Object3D( PATH+"data/models/cylinder.dae",true);
 //    Object3D* body = new Object3D( PATH+"data/models/object/cylinder/leafbone.fbx",true);
 //    Object3D* body = new Object3D( PATH+"data/models/cilindro_l.dae",true);
 //    Object3D* body = new Object3D( PATH+"data/models/rectangulo_animated.dae",true);
-    Object3D* body = new Object3D( PATH+"data/models/dinosaurio.dae",true);
+//     Object3D* body = new Object3D( PATH+"data/models/dancer.dae",true);
+//     Object3D* body = new Object3D( PATH+"data/models/oso.dae",true);
+//     Object3D* body = new Object3D( PATH+"data/models/dinosaurio.dae",true);
+//     Object3D* body = new Object3D( PATH+"data/models/groo.dae",true);
+//    Object3D* body = new Object3D( PATH+"data/models/tortuga.dae",true);
 
 //    Object3D* body = new Object3D( PATH+"data/models/oso.dae",true);
     body->ModelMatrix = glm::rotate(body->ModelMatrix,glm::radians(-90.0f),glm::vec3(1.0f,0.0f,0.0f));
@@ -265,7 +269,8 @@ int main( void )
     
     
     do{
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+//        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
