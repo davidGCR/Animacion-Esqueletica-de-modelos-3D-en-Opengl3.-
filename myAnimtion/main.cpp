@@ -205,14 +205,14 @@ int main( void )
 //    Object3D* body = new Object3D( PATH+"data/models/simple_animated.dae",true);
 
 //        Object3D* body = new Object3D( PATH+"data/models/ArmatureStraight.dae",true);
-    Object3D* body = new Object3D( PATH+"data/models/cylinder.dae",true);
+//    Object3D* body = new Object3D( PATH+"data/models/cylinder.dae",true);
 //    Object3D* body = new Object3D( PATH+"data/models/object/cylinder/leafbone.fbx",true);
 //    Object3D* body = new Object3D( PATH+"data/models/cilindro_l.dae",true);
 //    Object3D* body = new Object3D( PATH+"data/models/rectangulo_animated.dae",true);
 //     Object3D* body = new Object3D( PATH+"data/models/dancer.dae",true);
 //     Object3D* body = new Object3D( PATH+"data/models/oso.dae",true);
 //     Object3D* body = new Object3D( PATH+"data/models/dinosaurio.dae",true);
-//     Object3D* body = new Object3D( PATH+"data/models/groo.dae",true);
+     Object3D* body = new Object3D( PATH+"data/models/groo.dae",true);
 //    Object3D* body = new Object3D( PATH+"data/models/tortuga.dae",true);
 
 //    Object3D* body = new Object3D( PATH+"data/models/oso.dae",true);

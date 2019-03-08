@@ -96,7 +96,7 @@ void Object3D::loadMesh(){
         
         std::chrono::duration<double> elapsed = finish - start;
         std::cout << "Elapsed time: " << elapsed.count() << " s\n";
-//        save_CoR("jajaja", cors);
+        save_CoR("m1", cors);
 //        cout<<"cors.size: "<<cors.size()<<endl;
 //        for (int i=0; i<cors.size(); i++) {
 //            cout<<"["<<cors[i].x<<", "<<cors[i].y<<","<<cors[i].z<<"]"<<endl;
@@ -437,7 +437,7 @@ void Object3D::draw(){
     // Draw the triangles !
 //    glDrawArrays(GL_TRIANGLES, 0, vertices.size() );
     for (uint i = 0 ; i < meshes.size() ; i++) {
-        glDrawElementsBaseVertex(GL_TRIANGLES,
+        glDrawElementsBaseVertex(GL_LINE_LOOP,
                                  meshes[i].NumIndices,
                                  GL_UNSIGNED_INT,
                                  (void*)(sizeof(uint) * meshes[i].BaseIndex),

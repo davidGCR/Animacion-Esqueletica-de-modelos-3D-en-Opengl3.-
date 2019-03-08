@@ -69,7 +69,7 @@ void main(){
     tras.y = t_traslation[3][1];
     tras.z = t_traslation[3][2];
     tras.w = 1;
-    vec4 pos = t_rotation*vec4(vertexPosition_modelspace,1.0) + tras;
+//    vec4 pos = t_rotation*vec4(vertexPosition_modelspace,1.0) + tras;
 
     /*............:::::::::::::::::::: QLERP .........::::::::::::::*/
     vec4 Q0 = quaternions[BoneIDs[0]]*Weights[0];
