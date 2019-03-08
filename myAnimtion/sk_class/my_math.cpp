@@ -220,6 +220,14 @@ Matrix4f& Matrix4f::Inverse()
     return *this;
 }
 
+Quaternion::Quaternion()
+{
+    x = 0;
+    y = 0;
+    z = 0;
+    w = 0;
+}
+
 Quaternion::Quaternion(float _x, float _y, float _z, float _w)
 {
     x = _x;

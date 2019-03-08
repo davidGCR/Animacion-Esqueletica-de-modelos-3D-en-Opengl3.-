@@ -23,6 +23,9 @@ GLFWwindow* window;
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+
 // #include <glm/gtx/string_cast.hpp>
 using namespace glm;
 
@@ -37,7 +40,7 @@ using namespace glm;
 #include "common/vboindexer.hpp"
 #include "sk_class/constants.h"
 #include <sys/time.h>
-#include "OCoR.h"
+//#include "OCoR.hpp"
 // #include "sk_class/utils.h"
 
 #define INVALID_UNIFORM_LOCATION 0xffffffff
@@ -201,10 +204,25 @@ int main( void )
 //     Object3D* body = new Object3D(PATH+"data/models/Monster_1/Monster_1.dae",true);
 //    Object3D* body = new Object3D( PATH+"data/models/simple_animated.dae",true);
 
-    //    Object3D* body = new Object3D( PATH+"data/models/armature.dae",true);
-    //Object3D* body = new Object3D( PATH+"data/models/cylinder.dae",true);
-    Object3D* body = new Object3D( PATH+"data/models/rectangulo_animated.dae",true);
+//        Object3D* body = new Object3D( PATH+"data/models/ArmatureStraight.dae",true);
+//    Object3D* body = new Object3D( PATH+"data/models/cylinder.dae",true);
+//    Object3D* body = new Object3D( PATH+"data/models/object/cylinder/leafbone.fbx",true);
+//    Object3D* body = new Object3D( PATH+"data/models/cilindro_l.dae",true);
+//    Object3D* body = new Object3D( PATH+"data/models/rectangulo_animated.dae",true);
+    Object3D* body = new Object3D( PATH+"data/models/dinosaurio.dae",true);
+
+//    Object3D* body = new Object3D( PATH+"data/models/oso.dae",true);
     body->ModelMatrix = glm::rotate(body->ModelMatrix,glm::radians(-90.0f),glm::vec3(1.0f,0.0f,0.0f));
+    
+    
+    cout<<"vertices total: "<<body->vertices.size()<<endl;
+    cout<<"indices total: "<<body->indices.size()<<endl;
+    cout<<"bonesInfo total: "<<body->bonesInfo.size()<<endl;
+    cout<<"bones total: "<<body->bones.size()<<endl;
+    map<int,Vector3f> results;
+    
+    
+    //ComputeOptimizedCoRs(body->vertices, body->indices, body->bonesInfo, body->bones, body->cors);
     
 //     Object3D* body = new Object3D(PATH+"data/models/boblampclean.md5mesh",true);
 //    Object3D* body = new Object3D(PATH+"data/models/old-man-run-animation/source/Corriendo-Old.fbx",true);
@@ -216,18 +234,6 @@ int main( void )
 
     Gizmo* gizmo = new Gizmo();
     gizmo->setShaders(PATH+"gizmo.vertexshader", PATH+"gizmo.fragmentshader");
-
-    // // //GEt uniform location: array
-//     GLuint m_boneLocation[MAX_BONES];
-//     int tam = sizeof(m_boneLocation)/sizeof(m_boneLocation[0]);
-//
-//     for (unsigned int i = 0 ; i < tam ; i++) {
-//         char Name[128];
-//         memset(Name, 0, sizeof(Name));
-//         snprintf(Name, sizeof(Name), "gBones[%d]", i);
-//         m_boneLocation[i] = GetUniformLocation(body->programID,Name);
-//     }
-
 
     //textuta
     GLuint Texture= loadDDS((PATH+"data/cube/uvmap.DDS").c_str());
@@ -243,6 +249,21 @@ int main( void )
 
     // Cull triangles which normal is not towards the camera
     //glEnable(GL_CULL_FACE);
+//    const string name_glob_trans = "globalTransformation";
+//    GLuint glob_trasf = glGetUniformLocation(body->programID, name_glob_trans.c_str());
+//    glUniformMatrix4fv(glob_trasf, 1,GL_TRUE,(const GLfloat*)body->m_GlobalInverseTransform);
+//
+//    vector<Matrix4f> offs;
+//    body->computeOffsets(offs);
+//
+//    for (int i=0; i<offs.size(); i++) {
+//        const string name_off = "offs[" + to_string(i) + "]";
+//        GLuint boneoffset = glGetUniformLocation(body->programID, name_off.c_str());
+//        glUniformMatrix4fv(boneoffset, 1, GL_TRUE, (const GLfloat*)Matrix4f(offs[i]) );
+//    }
+    
+    
+    
     do{
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         // Clear the screen
@@ -265,16 +286,68 @@ int main( void )
 
         cout<<" /////////////////////////////////// time: "<<t<<endl;
         vector<Matrix4f> Transforms;
+        vector<glm::quat> rotations00;
+        vector<glm::vec3> traslations_rest;
+        vector<glm::vec3> traslations_pose;
+//        vector<glm::quat> quaternions;
+        vector<Quaternion> quaternions;
+        vector<Matrix4f> traslations;
+        vector<Matrix4f> scales;
+        vector<Matrix4f> pTransformations;
+        vector<Matrix4f> rotations;
+        
         body->BoneTransform(t,Transforms);
-
+//        body->computeRotations(quaternions);
+//        body->computeQuaternions(quaternions);
+//        body->computeTraslations(traslations);
+//        body->computeScalings(scales);
+//        body->computeParentTransformation(pTransformations);
+//        body->computeRotations(rotations);
+        body->computeRotationsTraslationsQuaternions(rotations, traslations,quaternions);
         
         for (uint i = 0 ; i < Transforms.size() ; i++) {
 //            SetBoneTransform(i, Transforms[i]);
-            cout<<"__________________________ Transform: "<<i<<endl;
-            Transforms[i].printMatrix4f();
+//            cout<<"__________________________ Transform: "<<i<<endl;
+//            Transforms[i].printMatrix4f();
             const string name = "gBones[" + to_string(i) + "]";
             GLuint boneTransform = glGetUniformLocation(body->programID, name.c_str());
             glUniformMatrix4fv(/*m_boneLocation[i]*/boneTransform, 1, GL_TRUE, (const GLfloat*)Transforms[i]);
+            
+//            const string name_t = "traslations_rest[" + to_string(i) + "]";
+//            GLuint traslations_r = glGetUniformLocation(body->programID, name_t.c_str());
+//            glUniform3fv(traslations_r, 1, glm::value_ptr(traslations_rest[i]));
+//
+//            const string name_p = "traslations_pose[" + to_string(i) + "]";
+//            GLuint traslations_p = glGetUniformLocation(body->programID, name_p.c_str());
+//            glUniform3fv(traslations_p, 1, glm::value_ptr(traslations_pose[i]));
+//
+//            const string name_rot = "rotations[" + to_string(i) + "]";
+//            GLuint bonerotation = glGetUniformLocation(body->programID, name_rot.c_str());
+//            glUniformMatrix4fv(bonerotation, 1, GL_TRUE, glm::value_ptr(glm::toMat4(rotations[i])));
+            
+//            const string name_quad = "quaternions[" + to_string(i) + "]";
+//            GLuint bonequaternion = glGetUniformLocation(body->programID, name_quad.c_str());
+//            glUniform4fv(bonequaternion, 1, value_ptr(quaternions[i]));
+            
+            const string name_quad = "quaternions[" + to_string(i) + "]";
+            GLuint bonequaternion = glGetUniformLocation(body->programID, name_quad.c_str());
+            glUniform4fv(bonequaternion, 1,(const GLfloat*)(&quaternions[i]));
+            
+            const string name_tras = "traslations[" + to_string(i) + "]";
+            GLuint bonetraslation = glGetUniformLocation(body->programID, name_tras.c_str());
+            glUniformMatrix4fv(/*m_boneLocation[i]*/bonetraslation, 1, GL_TRUE, (const GLfloat*)traslations[i]);
+//
+//            const string name_scal = "scales[" + to_string(i) + "]";
+//            GLuint bonescale = glGetUniformLocation(body->programID, name_scal.c_str());
+//            glUniformMatrix4fv(/*m_boneLocation[i]*/bonescale, 1, GL_TRUE, (const GLfloat*)scales[i]);
+            
+//            const string name_pt = "pTransformations[" + to_string(i) + "]";
+//            GLuint boneparentT = glGetUniformLocation(body->programID, name_pt.c_str());
+//            glUniformMatrix4fv(/*m_boneLocation[i]*/boneparentT, 1, GL_TRUE, (const GLfloat*)pTransformations[i]);
+            
+            const string name_rt = "rotations[" + to_string(i) + "]";
+            GLuint bonerotation = glGetUniformLocation(body->programID, name_rt.c_str());
+            glUniformMatrix4fv(/*m_boneLocation[i]*/bonerotation, 1, GL_TRUE, (const GLfloat*)rotations[i]);
         }
         
 //        for (unsigned int i = 0; i < Transforms.size(); ++i)
