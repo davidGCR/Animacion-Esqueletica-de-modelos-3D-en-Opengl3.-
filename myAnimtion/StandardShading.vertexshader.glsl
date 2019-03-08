@@ -47,7 +47,7 @@ void main(){
      BoneTransform += gBones[BoneIDs[3]] * Weights[3];
 
      vec4 PosL    = BoneTransform * vec4(vertexPosition_modelspace, 1.0);//4*1
-     gl_Position  = MVP * PosL;//4*1 //pos en LBS
+//     gl_Position  = MVP * PosL;//4*1 //pos en LBS
 //    gl_Position = MVP*vec4(vertexPosition_modelspace,1);
 //
     /***************************************************/
@@ -95,7 +95,7 @@ void main(){
 //
 //         We = Weights;
 //    }
-//    gl_Position = MVP  * (R*vec4(vertexPosition_modelspace,1.0) + T);
+    gl_Position = MVP  * (R*vec4(vertexPosition_modelspace,1.0) + T);
     
 
     Normal_cameraspace = ( transpose(inverse(V * M)) * BoneTransform * vec4(vertexNormal_modelspace,0)).xyz;

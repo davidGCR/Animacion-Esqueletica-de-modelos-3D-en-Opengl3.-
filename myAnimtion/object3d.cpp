@@ -90,8 +90,13 @@ void Object3D::loadMesh(){
         
         // loadAssImp(meshFilename.c_str(), indices ,vertices, uvs, normals);
         loadTmre(meshFilename.c_str());
+        auto start = std::chrono::high_resolution_clock::now();
         CoRs =  ComputeOptimizedCoRs(vertices, indices,bonesInfo, bones, cors);
-        save_CoR("jajaja", cors);
+        auto finish = std::chrono::high_resolution_clock::now();
+        
+        std::chrono::duration<double> elapsed = finish - start;
+        std::cout << "Elapsed time: " << elapsed.count() << " s\n";
+//        save_CoR("jajaja", cors);
 //        cout<<"cors.size: "<<cors.size()<<endl;
 //        for (int i=0; i<cors.size(); i++) {
 //            cout<<"["<<cors[i].x<<", "<<cors[i].y<<","<<cors[i].z<<"]"<<endl;
