@@ -12,5 +12,5 @@ https://www.youtube.com/watch?v=LkQYVw0b364&feature=youtu.be
 ![Alt text](https://github.com/davidGCR/myAnimation/blob/master/myAnimtion/data/0.png?raw=true "Title")
 
 # 3. Results
-![Alt text](hhttps://github.com/davidGCR/myAnimation/blob/master/myAnimtion/data/results.png?raw=true "Title")
+![Alt text](https://github.com/davidGCR/myAnimation/blob/master/myAnimtion/data/results.png?raw=true "Title")
 
