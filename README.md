@@ -2,9 +2,9 @@
 Binh Le (Disney Research) y Jessica Hodgins (Disney Research).
 ## UCSP - Maestria en Ciencia de la Computacion.
 
-# Alumno
+### Alumno
 - David Choqueluque Roman
 
-# Demo
+### Demo
 https://www.youtube.com/watch?v=LkQYVw0b364&feature=youtu.be
 
