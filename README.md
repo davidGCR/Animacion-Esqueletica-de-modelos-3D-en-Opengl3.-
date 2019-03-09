@@ -1,10 +1,16 @@
-# Implementacion de "Real-time Skeletal Skinning with Optimized Centers of Rotation" 
-Binh Le (Disney Research) y Jessica Hodgins (Disney Research).
-## UCSP - Maestria en Ciencia de la Computacion.
+# Animacion Esqueletica de modelos 3D en Opengl3.+ 
+Animacion de modelos esqueleticos basado en:
+- "Real-time Skeletal Skinning with Optimized Centers of Rotation"(Binh Le y Jessica Hodgins).
 
 ### Alumno
-- David Choqueluque Roman
+- David Choqueluque Roman (UCSP - Maestria en Ciencia de la Computacion)
 
-### Demo
+# 1. Demo
 https://www.youtube.com/watch?v=LkQYVw0b364&feature=youtu.be
+
+# 2. Algoritmo
+![Alt text](https://github.com/davidGCR/myAnimation/blob/master/myAnimtion/data/0.png?raw=true "Title")
+
+# 3. Results
+![Alt text](hhttps://github.com/davidGCR/myAnimation/blob/master/myAnimtion/data/results.png?raw=true "Title")
 
