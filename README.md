@@ -1,6 +1,12 @@
 # Animacion Esqueletica de modelos 3D en Opengl3.+ 
 Animacion de modelos esqueleticos basado en:
 - "Real-time Skeletal Skinning with Optimized Centers of Rotation"(Binh Le y Jessica Hodgins).
+ ### Recursos:
+ El proyecto fue implementado en MacOsX-Mojave, pero no deberia ser dificil migrarlo a otros sistemas operativos. Se usaron las siguientes herramientas:
+ - OpenGl 3+
+ - Glfw
+ - Glew
+ - Assimp
 
 ### Alumno
 - David Choqueluque Roman (UCSP - Maestria en Ciencia de la Computacion)
